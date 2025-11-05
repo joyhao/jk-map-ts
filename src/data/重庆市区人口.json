@@ -1,0 +1,35 @@
+{
+  "districts": [
+    {
+      "district": "渝北区",
+      "population": 10,
+      "rank": 1,
+      "coordinates": [106.746928, 29.810209]
+    },
+    {
+      "district": "九龙坡区",
+      "population": 10,
+      "rank": 2,
+      "coordinates": [106.364401, 29.428501]
+    },
+    {
+      "district": "万州区",
+      "population": 70,
+      "rank": 3,
+      "coordinates": [108.406819, 30.704054]
+    },
+    {
+      "district": "沙坪坝区",
+      "population": 10,
+      "rank": 4,
+      "coordinates": [106.368248, 29.624462]
+    },
+    {
+      "district": "江津区",
+      "population": 20,
+      "rank": 5,
+      "coordinates": [106.263211, 29.029608]
+    }
+  ],
+  "total": 120
+}
