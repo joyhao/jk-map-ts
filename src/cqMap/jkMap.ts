@@ -1,24 +1,39 @@
 import * as THREE from 'three';
 import jkCore from './jkCore';
 
-import { getQuXian, type QuXian } from '@/data';
+import { getQuXian, getShiQu, type City } from '@/data';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import { defaultMaterial, lineMaterial } from './material';
-import { getCenter, toRad, projectPos, geoEach } from './utils';
+import { defaultMaterial, lineMaterial, loadTexture } from './material';
+import cqMap from '@/image/cq.png';
+import {
+  getCenter,
+  toRad,
+  projectPos,
+  geoEach,
+  uvCalc,
+  gslUpdateTime
+} from './utils';
 import type { UserData } from './cq.interface';
+
+// @ts-ignore
+import mapVertexShader from '@/shader/mapVertexShader.vert';
+// @ts-ignore
+import mapFragmentShader from '@/shader/mapFragmentShader.frag';
 
 export default class jkMap extends jkCore {
   quXian = getQuXian();
+  shiQu = getShiQu();
   manGroup: THREE.Group = new THREE.Group();
 
   constructor(selector: string) {
     super(selector);
     this.sceneAdd(this.manGroup);
     this.initGeo();
+    this.animation();
   }
 
   initGeo() {
-    this.createShiQu(this.quXian);
+    this.createQuXian(this.quXian);
     this.createShiQuLine(this.quXian);
 
     this.manGroup.rotateX(toRad(270));
@@ -62,29 +77,7 @@ export default class jkMap extends jkCore {
   }
 
   /**
-   * 创建区县地图
-   */
-  createShiQu(quXian: QuXian) {
-    quXian.features.forEach((item) => {
-      const name = item.properties.name;
-      const geometries = geoEach(item, this.drawQuXian);
-      if (geometries.length > 0) {
-        const mergeGeometry = mergeGeometries(geometries);
-        const mesh = new THREE.Mesh(mergeGeometry, defaultMaterial());
-        const userName: UserData = {
-          name: name,
-          type: '区',
-          hasHover: true
-        };
-        mesh.userData = userName;
-        this.manGroup.add(mesh);
-        geometries.forEach((geo) => geo.dispose()); // 清理临时几何体
-      }
-    });
-  }
-
-  /**
-   * 画区县边界
+   * 画区县边界线
    * @param shapes
    * @returns
    */
@@ -97,8 +90,8 @@ export default class jkMap extends jkCore {
 
         if (isNaN(x1) || isNaN(y1) || isNaN(x2) || isNaN(y2)) continue;
 
-        shapeList.push(x1, -y1, 0.1);
-        shapeList.push(x2, -y2, 0.1);
+        shapeList.push(x1, -y1, 0.01);
+        shapeList.push(x2, -y2, 0.01);
       }
     });
 
@@ -106,10 +99,65 @@ export default class jkMap extends jkCore {
   }
 
   /**
+   * 创建区县地图
+   */
+  async createQuXian(quXian: City) {
+    let geoList: THREE.BufferGeometry[] = [];
+    quXian.features.forEach((item) => {
+      const name = item.properties.name;
+      const geometries = geoEach(
+        item,
+        this.drawQuXian
+      ) as THREE.ExtrudeGeometry[];
+      if (geometries.length > 0) {
+        const mergeGeometry = mergeGeometries(geometries);
+        geoList.push(mergeGeometry);
+        const mesh = new THREE.Mesh(mergeGeometry, defaultMaterial());
+        const userName: UserData = {
+          name: name,
+          type: '区',
+          hasHover: true
+        };
+        mesh.userData = userName;
+        this.manGroup.add(mesh);
+        geometries.forEach((geo) => geo.dispose()); // 清理临时几何体
+      }
+    });
+
+    this.createDiTu(geoList);
+  }
+
+  /**
+   * 创建纹理底图
+   * @param geoList
+   */
+  async createDiTu(geoList: THREE.BufferGeometry[]) {
+    const texture = await loadTexture(cqMap);
+    const mergeGeometry = uvCalc(mergeGeometries(geoList));
+
+    const material = new THREE.ShaderMaterial({
+      uniforms: {
+        time: { value: 0 },
+        uTexture: { value: texture },
+        color1: { value: new THREE.Color(1, 0, 0) },
+        color2: { value: new THREE.Color(0, 0, 1) }
+      },
+      vertexShader: mapVertexShader,
+      fragmentShader: mapFragmentShader
+    });
+
+    const mesh = new THREE.Mesh(mergeGeometry, material);
+    mesh.userData.shaderMaterial = material;
+    mesh.position.z = -0.1;
+    this.manGroup.add(mesh);
+    geoList.forEach((geo) => geo.dispose()); // 清理临时几何体
+  }
+
+  /**
    * 创建区县的边界线
    * @param quXian
    */
-  createShiQuLine(quXian: QuXian) {
+  createShiQuLine(quXian: City) {
     quXian.features.forEach((item) => {
       const geometries = geoEach(item, this.drawLine);
 
@@ -122,6 +170,16 @@ export default class jkMap extends jkCore {
         const line = new THREE.LineSegments(geometry, lineMaterial());
         this.manGroup.add(line);
       }
+    });
+  }
+
+  /**
+   * 创建时间函数
+   */
+  animation() {
+    const ticket = this.ticket();
+    ticket.start((time) => {
+      gslUpdateTime(time, this.manGroup);
     });
   }
 }

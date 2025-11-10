@@ -1,20 +1,20 @@
-import quxian from '@/data/重庆市区.json';
-import shi from '@/data/重庆市.json';
+import quXian from '@/data/重庆市区.json';
+import shiQu from '@/data/重庆市.json';
 
 /**
  * 返回区县数据
  * @returns
  */
 export function getQuXian() {
-  return quxian;
+  return quXian;
 }
 
 /**
  * 返回市
  * @returns
  */
-export function getShi() {
-  return shi;
+export function getShiQu() {
+  return shiQu as City;
 }
 
-export type QuXian = ReturnType<typeof getQuXian>;
+export type City = ReturnType<typeof getQuXian>;

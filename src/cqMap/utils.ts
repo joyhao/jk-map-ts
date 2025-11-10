@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import * as d3 from 'd3';
-import type { QuXian } from '@/data';
+import type { City } from '@/data';
+import type { Group } from 'three/examples/jsm/libs/tween.module.js';
 
 // 转换经纬度到屏幕坐标
 
@@ -55,13 +56,69 @@ export function getCenter(box: THREE.Object3D) {
  * @param item
  * @param callback
  */
-export function geoEach(item: QuXian['features'][0], callback: Function) {
+export function geoEach(item: City['features'][0], callback: Function) {
   const { geometry } = item;
-  let geometryList: THREE.ExtrudeGeometry[] = [];
+  let geometryList: [] = [];
   geometry.coordinates.forEach((shapes) => {
-    const geometries = callback && callback(shapes);
+    const geometries = callback && (callback(shapes) as []);
+
     geometryList.push(...geometries);
   });
 
   return geometryList;
+}
+
+/**
+ * 纹理uv计算, 纹理映射
+ * @param {*} mergedGeometry
+ * @param {*} texture
+ */
+export function uvCalc(mergedGeometry: THREE.BufferGeometry) {
+  mergedGeometry.computeBoundingBox();
+  const { min, max } = mergedGeometry.boundingBox as THREE.Box3;
+  const width = max.x - min.x;
+  const height = max.y - min.y;
+
+  const uvArray = new Float32Array(
+    mergedGeometry.attributes.position.count * 2
+  );
+  mergedGeometry.setAttribute('uv', new THREE.BufferAttribute(uvArray, 2));
+  const uvAttribute = mergedGeometry.attributes.uv;
+  const positions = mergedGeometry.attributes.position;
+
+  for (let i = 0; i < positions.count; i++) {
+    const x = positions.getX(i);
+    const y = positions.getY(i);
+    const u = (x - min.x) / width;
+    const v = (y - min.y) / height;
+    uvAttribute.setXY(i, u, v);
+  }
+  mergedGeometry.attributes.uv.needsUpdate = true;
+
+  return mergedGeometry;
+}
+
+/**
+ * 更新shader时间函数
+ * @param time
+ * @param mainGroup
+ */
+export function gslUpdateTime(time: number, mainGroup: THREE.Group) {
+  let shaderMesh = null;
+  let material = null;
+
+  if (!shaderMesh) {
+    shaderMesh = mainGroup.children.find(
+      (child) => child.userData.shaderMaterial
+    );
+  }
+
+  if (shaderMesh) {
+    material = shaderMesh.userData.shaderMaterial;
+  }
+
+  // 持续更新 time uniform 的值
+  if (material) {
+    material.uniforms.time.value = time;
+  }
 }
