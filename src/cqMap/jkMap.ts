@@ -3,7 +3,12 @@ import jkCore from './jkCore';
 
 import { getQuXian, getShiQu, type City } from '@/data';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import { defaultMaterial, lineMaterial, loadTexture } from './material';
+import {
+  defaultMaterial,
+  hoverMaterial,
+  lineMaterial,
+  loadTexture
+} from './material';
 import cqMap from '@/image/cq.png';
 import {
   getCenter,
@@ -174,11 +179,49 @@ export default class jkMap extends jkCore {
   }
 
   /**
+   * 地图高亮
+   */
+  createHighLight() {
+    let hover: THREE.Object3D | null = null;
+    const mesh = this.manGroup.children.filter(
+      (child) => (child as THREE.Mesh) && child.userData.hasHover
+    );
+
+    const start = () => {
+      const intersects = this.handleIntersects(mesh);
+      if (intersects.length >= 1) {
+        const intersect = intersects[0].object;
+        if (intersect !== hover) {
+          if (hover) {
+            //@ts-ignore
+            hover.material.color.set(defaultMaterial().color);
+          }
+          hover = intersect;
+          //@ts-ignore
+          hover.material.color.set(hoverMaterial().color);
+        }
+      } else {
+        if (hover) {
+          //@ts-ignore
+          hover.material.color.set(defaultMaterial().color);
+          hover = null;
+        }
+      }
+    };
+
+    return {
+      start
+    };
+  }
+
+  /**
    * 创建时间函数
    */
   animation() {
     const ticket = this.ticket();
+    const hLight = this.createHighLight();
     ticket.start((time) => {
+      hLight.start();
       gslUpdateTime(time, this.manGroup);
     });
   }

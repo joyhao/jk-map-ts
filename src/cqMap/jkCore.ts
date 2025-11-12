@@ -13,6 +13,8 @@ export default class jkCore {
   camera: THREE.PerspectiveCamera;
   renderer: THREE.WebGLRenderer;
   control!: OrbitControls;
+  raycaster = new THREE.Raycaster();
+  mouse = new THREE.Vector2();
 
   constructor(selector: string) {
     // 容器相关
@@ -44,6 +46,11 @@ export default class jkCore {
     this.camera.lookAt(0, 0, 0);
 
     window.addEventListener('resize', this.resizeHandle.bind(this));
+    window.addEventListener(
+      'mousemove',
+      this.mousemoveHandle.bind(this),
+      false
+    );
 
     this.createGrid();
     this.createAxes();
@@ -104,6 +111,12 @@ export default class jkCore {
     this.scene.add(cube);
   }
 
+  handleIntersects(mesh: THREE.Object3D[]) {
+    this.raycaster.setFromCamera(this.mouse, this.camera);
+    const intersects = this.raycaster.intersectObjects(mesh);
+    return intersects;
+  }
+
   animate() {
     requestAnimationFrame(this.animate.bind(this));
     this.control.update();
@@ -144,5 +157,19 @@ export default class jkCore {
     // 手动通知相机 更新投影矩阵
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(this.width, this.height);
+  }
+
+  /**
+   * 鼠标移动事件
+   * @param event
+   */
+  mousemoveHandle(event: { clientX: number; clientY: number }) {
+    // 获取鼠标在画布上的本地坐标
+    const mouseX = event.clientX - this.left;
+    const mouseY = event.clientY - this.top;
+
+    // 将鼠标位置归一化为设备坐标。x 和 y 的值在 -1 到 +1 之间。
+    this.mouse.x = (mouseX / this.width) * 2 - 1;
+    this.mouse.y = -(mouseY / this.height) * 2 + 1;
   }
 }

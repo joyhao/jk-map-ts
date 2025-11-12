@@ -14,6 +14,12 @@ export const lineMaterial = () => {
   });
 };
 
+export const hoverMaterial = () => {
+  return new THREE.LineBasicMaterial({
+    color: '#ffccff'
+  });
+};
+
 // 加载图片
 
 export function loadImage(url: string) {
