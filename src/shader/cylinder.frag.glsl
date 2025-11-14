@@ -1,13 +1,16 @@
 
 varying vec2 vUv;
-// 最大10种颜色
 uniform vec3 color[4];
 uniform float position[4];
 uniform float time; 
 uniform int cLen; 
 void main() {
   // 使用 vUv.y 作为垂直渐变的位置 (0.0 to 1.0)
-  float cPos = vUv.y;
+
+  // 它将 time * 0.5 的结果限制在 0.0 到 1.0 的范围内。
+  float timeOffset = mod(time * 0.5, 1.0); // 0.1 是速度因子，可以调整
+  // 这确保了当 vUv.y + timeOffset 超过 1.0 时，它会“绕回”到 0.0，形成一个永不停止的垂直循环渐变动画。
+  float cPos = mod(vUv.y + timeOffset, 1.0); // 将偏移应用到 vUv.y 上
   // 默认颜色
   vec3 cColor = color[0];
 
@@ -23,7 +26,8 @@ void main() {
       if (cPos >= startPos && cPos <= endPos) {
         // 计算插值比例 t，并混合颜色
         float t = (cPos - startPos) / (endPos - startPos);
-        cColor = mix(startColor, endColor, t);
+        // 1.0 可实现不渐变效果
+        cColor = mix(startColor,endColor,t);
         break; // 找到颜色后立即停止循环
       }
     }

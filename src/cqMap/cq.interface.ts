@@ -1,3 +1,5 @@
+import * as THREE from 'three';
+
 export type StartFun = (seconds: number) => void;
 
 /**
@@ -5,6 +7,7 @@ export type StartFun = (seconds: number) => void;
  */
 export interface UserData {
   name: string;
-  type: '省' | '市' | '区';
+  type: string;
   hasHover: boolean;
+  shaderMaterial?: THREE.ShaderMaterial;
 }

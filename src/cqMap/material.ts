@@ -22,7 +22,7 @@ export const hoverMaterial = () => {
 
 export const linear = () => {
   return [
-    { color: new THREE.Color(1, 0, 0), position: 0.0 }, // 红
+    { color: new THREE.Color(1, 0, 0), position: 0.2 }, // 红
     { color: new THREE.Color(0, 1, 0), position: 0.5 }, // 绿
     { color: new THREE.Color(0, 0, 1), position: 0.8 }, // 蓝
     { color: new THREE.Color(1, 0, 1), position: 1.0 }

@@ -116,12 +116,12 @@ export default class jkMap extends jkCore {
         const mergeGeometry = mergeGeometries(geometries);
         geoList.push(mergeGeometry);
         const mesh = new THREE.Mesh(mergeGeometry, defaultMaterial());
-        const userName: UserData = {
+        const userData: UserData = {
           name: name,
           type: '区',
           hasHover: true
         };
-        mesh.userData = userName;
+        mesh.userData = userData;
         this.manGroup.add(mesh);
         geometries.forEach((geo) => geo.dispose()); // 清理临时几何体
       }
@@ -218,9 +218,9 @@ export default class jkMap extends jkCore {
   animation() {
     const ticket = this.ticket();
     const hLight = this.createHighLight();
-    ticket.start((time) => {
-      hLight.start();
-      gslUpdateTime(time, this.manGroup);
-    });
+    // ticket.start((time) => {
+    //   hLight.start();
+    //   gslUpdateTime(time, this.manGroup);
+    // });
   }
 }
