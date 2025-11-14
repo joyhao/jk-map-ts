@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import type { StartFun } from '@/cqMap/cq.interface';
 import { OrbitControls } from 'three/examples/jsm/Addons.js';
-
+import { gsap } from 'gsap';
 export default class jkCore {
   container: HTMLElement;
   bound: DOMRect;
@@ -15,6 +15,7 @@ export default class jkCore {
   control!: OrbitControls;
   raycaster = new THREE.Raycaster();
   mouse = new THREE.Vector2();
+  gsap = gsap;
 
   constructor(selector: string) {
     // 容器相关

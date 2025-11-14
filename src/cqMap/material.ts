@@ -20,6 +20,12 @@ export const hoverMaterial = () => {
   });
 };
 
+export const cylinderMaterial = () => {
+  return new THREE.MeshBasicMaterial({
+    color: 'rgb(255,124,125)'
+  });
+};
+
 // 加载图片
 
 export function loadImage(url: string) {

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import jkCore from './jkCore';
 
-import { getQuXian, getShiQu, type City } from '@/data';
+import { quXian, type City } from '@/data';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import {
   defaultMaterial,
@@ -26,8 +26,6 @@ import mapVertexShader from '@/shader/mapVertexShader.vert';
 import mapFragmentShader from '@/shader/mapFragmentShader.frag';
 
 export default class jkMap extends jkCore {
-  quXian = getQuXian();
-  shiQu = getShiQu();
   manGroup: THREE.Group = new THREE.Group();
 
   constructor(selector: string) {
@@ -38,8 +36,8 @@ export default class jkMap extends jkCore {
   }
 
   initGeo() {
-    this.createQuXian(this.quXian);
-    this.createShiQuLine(this.quXian);
+    this.createQuXian(quXian);
+    this.createShiQuLine(quXian);
 
     this.manGroup.rotateX(toRad(270));
     // 居中 getCenter 获取集合体中点点
