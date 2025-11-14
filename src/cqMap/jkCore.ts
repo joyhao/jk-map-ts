@@ -39,6 +39,7 @@ export default class jkCore {
     });
 
     //  渲染器设置
+    this.renderer.outputColorSpace = THREE.SRGBColorSpace;
     this.renderer.setSize(this.width, this.height);
     this.container.appendChild(this.renderer.domElement);
 
