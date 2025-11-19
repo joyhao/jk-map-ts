@@ -13,6 +13,7 @@ import type { UserData } from './cq.interface';
 export default class jkCylinder {
   map: jkMap;
   group = new THREE.Group();
+  uniforms: { [uniform: string]: { value: any } } = {};
   constructor(map: jkMap) {
     this.map = map;
     this.map.manGroup.add(this.group);
@@ -23,22 +24,31 @@ export default class jkCylinder {
   init() {
     const total = renKou.total;
     const color = linear();
+
+    this.uniforms = {
+      cameraPosition1: { value: new THREE.Vector3() },
+      time: { value: 0 },
+      color: { value: color.map((stop) => stop.color) },
+      position: { value: color.map((stop) => stop.position) },
+      cLen: { value: color.length }
+    };
     const material = cylinderMaterial({
-      uniforms: {
-        time: { value: 0 },
-        color: { value: color.map((stop) => stop.color) },
-        position: { value: color.map((stop) => stop.position) },
-        cLen: { value: color.length }
-      },
+      uniforms: this.uniforms,
       vertexShader,
-      fragmentShader
-      // transparent: true
+      fragmentShader,
+      // 启用透明度
+      transparent: true,
+      // 启用混合模式（默认即可，但明确写出会更好）
+      blending: THREE.AdditiveBlending, // 加性混合通常用于辉光效果，看起来更亮
+      // 或者使用默认的 NormalBlending
+      // blending: THREE.NormalBlending,
+      depthWrite: false
     });
 
     renKou.districts.forEach((item) => {
       const percent = (item.population / total) * 5;
       const geometry = uvCalc(
-        new THREE.CylinderGeometry(0.05, 0.05, percent, 32)
+        new THREE.CylinderGeometry(0.25, 0.25, percent, 32)
       );
 
       const mesh = new THREE.Mesh(geometry, material);
@@ -64,6 +74,8 @@ export default class jkCylinder {
 
     ticket.start((time) => {
       gslUpdateTime(time, this.group);
+      // 每次渲染前，确保 uniform 中的 cameraPosition 是最新的世界坐标
+      this.uniforms.cameraPosition1.value.copy(this.map.camera.position);
     });
 
     this.group.children.forEach((mesh, i) => {

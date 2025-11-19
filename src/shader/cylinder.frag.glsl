@@ -1,39 +1,38 @@
 
 varying vec2 vUv;
+
+// 传入的摄像机世界坐标
+uniform vec3 cameraPosition1;
+// 传递到片元着色器的世界坐标
+varying vec3 vWorldPosition;
+// 传递到片元着色器的法线
+varying vec3 vNormal;
+
+// 颜色渐变
 uniform vec3 color[4];
 uniform float position[4];
-uniform float time; 
-uniform int cLen; 
-void main() {
-  // 使用 vUv.y 作为垂直渐变的位置 (0.0 to 1.0)
+uniform float time;
+uniform int cLen;
 
-  // 它将 time * 0.5 的结果限制在 0.0 到 1.0 的范围内。
-  float timeOffset = mod(time * 0.5, 1.0); // 0.1 是速度因子，可以调整
-  // 这确保了当 vUv.y + timeOffset 超过 1.0 时，它会“绕回”到 0.0，形成一个永不停止的垂直循环渐变动画。
-  float cPos = mod(vUv.y + timeOffset, 1.0); // 将偏移应用到 vUv.y 上
-  // 默认颜色
-  vec3 cColor = color[0];
+#include "./lib/linear_gradient.frag.glsl";
+#include "./lib/fresnel.frag.glsl";
 
-  // 循环遍历颜色停靠点，查找当前位置所属的区间
-  for (int i = 0; i < cLen; i++){
-    // 防止取值越界
-    if ( i + 1 < cLen ) {
-      vec3 startColor = color[i];
-      vec3 endColor = color[ i + 1];
-      float startPos = position[i];
-      float endPos = position[i+1];
-
-      if (cPos >= startPos && cPos <= endPos) {
-        // 计算插值比例 t，并混合颜色
-        float t = (cPos - startPos) / (endPos - startPos);
-        // 1.0 可实现不渐变效果
-        cColor = mix(startColor,endColor,t);
-        break; // 找到颜色后立即停止循环
-      }
-    }
-  }
-
+void main(){
+  // 1. 获取基础颜色
+  vec3 cColor=linear();
   
-
-  gl_FragColor = vec4(cColor,1);
+  // 2. 计算菲涅耳强度
+  float fresnelIntensity=fresnelEffect();
+  
+  // 3. 叠加菲涅耳效果 (使用一个明亮的颜色，例如白色或浅蓝)
+  vec3 edgeGlowColor=vec3(.8,.9,1.);// 浅蓝色光
+  
+  // 将边缘光叠加到基准色上
+  cColor+=fresnelIntensity*edgeGlowColor*.7;// 0.7 是亮度乘数
+  
+  // 确保颜色值在有效范围内
+  cColor=clamp(cColor,0.,1.);
+  
+  gl_FragColor=vec4(cColor,1);
 }
+
