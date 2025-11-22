@@ -10,26 +10,24 @@ import {
   loadTexture
 } from './material';
 import cqMap from '@/image/cq.png';
-import {
-  getCenter,
-  toRad,
-  projectPos,
-  geoEach,
-  uvCalc,
-  gslUpdateTime
-} from './utils';
+import { getCenter, toRad, projectPos, geoEach, uvCalc } from './utils';
 import type { UserData } from './cq.interface';
 
 // @ts-ignore
 import mapVertexShader from '@/shader/mapVertexShader.vert';
 // @ts-ignore
 import mapFragmentShader from '@/shader/mapFragmentShader.frag';
+import jkLabel from './jkLabel';
+import type { CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 
 export default class jkMap extends jkCore {
   manGroup: THREE.Group = new THREE.Group();
-
+  labelHandle: jkLabel;
+  labelRenderer: CSS2DRenderer;
   constructor(selector: string) {
     super(selector);
+    this.labelHandle = new jkLabel(this);
+    this.labelRenderer = this.labelHandle.initLabelRenderer(selector);
     this.sceneAdd(this.manGroup);
     this.initGeo();
     this.animation();
@@ -122,6 +120,8 @@ export default class jkMap extends jkCore {
           hasHover: true
         };
         mesh.userData = userData;
+        const label = this.labelHandle.createLabel(mesh);
+        mesh.add(label);
         this.manGroup.add(mesh);
         geometries.forEach((geo) => geo.dispose()); // 清理临时几何体
       }
@@ -218,9 +218,11 @@ export default class jkMap extends jkCore {
   animation() {
     const ticket = this.ticket();
     const hLight = this.createHighLight();
-    // ticket.start((time) => {
-    //   hLight.start();
-    //   gslUpdateTime(time, this.manGroup);
-    // });
+    ticket.start(() => {
+      if (this.labelRenderer) {
+        this.labelRenderer.render(this.scene, this.camera);
+      }
+      hLight.start();
+    });
   }
 }

@@ -1,8 +1,9 @@
 import * as THREE from 'three';
-import type { StartFun } from '@/cqMap/cq.interface';
+import type { Dispatcher, StartFun } from '@/cqMap/cq.interface';
 import { OrbitControls } from 'three/examples/jsm/Addons.js';
 import { gsap } from 'gsap';
-export default class jkCore {
+
+export default class jkCore extends THREE.EventDispatcher<Dispatcher> {
   container: HTMLElement;
   bound: DOMRect;
   left: number;
@@ -18,6 +19,7 @@ export default class jkCore {
   gsap = gsap;
 
   constructor(selector: string) {
+    super();
     // 容器相关
     this.container = document.querySelector(selector) as HTMLElement;
     this.bound = this.container.getBoundingClientRect();
@@ -159,6 +161,7 @@ export default class jkCore {
     // 手动通知相机 更新投影矩阵
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(this.width, this.height);
+    this.dispatchEvent({ type: 'resize' });
   }
 
   /**

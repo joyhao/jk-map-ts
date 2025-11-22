@@ -8,6 +8,14 @@ export const defaultMaterial = () => {
   });
 };
 
+export const waterMaterial = () => {
+  return new THREE.MeshBasicMaterial({
+    color: 'rgb(255,124,125)',
+    transparent: true,
+    opacity: 1
+  });
+};
+
 export const lineMaterial = () => {
   return new THREE.LineBasicMaterial({
     color: '#fff'
@@ -50,7 +58,7 @@ export function loadImage(url: string) {
         // });
         resolve(texture);
       },
-      (p) => {},
+      () => {},
       (err) => {
         reject(null);
         console.error('加载纹理时发生错误:', err);

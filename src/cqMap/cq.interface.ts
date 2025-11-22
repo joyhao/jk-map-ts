@@ -11,3 +11,7 @@ export interface UserData {
   hasHover: boolean;
   shaderMaterial?: THREE.ShaderMaterial;
 }
+
+export interface Dispatcher {
+  resize: {};
+}

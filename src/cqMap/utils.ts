@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import * as d3 from 'd3';
 import type { City } from '@/data';
-import type { Group } from 'three/examples/jsm/libs/tween.module.js';
+
 
 // 转换经纬度到屏幕坐标
 
