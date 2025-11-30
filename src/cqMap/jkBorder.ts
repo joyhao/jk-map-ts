@@ -65,7 +65,6 @@ export default class jkBorder {
       onUpdate: () => {
         const count = Math.floor(line.len * ani.factor);
         line.line.geometry.setDrawRange(0, Math.floor(count));
-        // line.line.geometry.attributes.position.needsUpdate = true; // 通知 Three.js 位置數據已更新
       },
       onComplete: () => {
         line.line.material.opacity = 0;
