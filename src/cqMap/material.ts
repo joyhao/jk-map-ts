@@ -22,6 +22,16 @@ export const lineMaterial = () => {
   });
 };
 
+export const lineDashedMaterial = () => {
+  return new THREE.LineDashedMaterial({
+    color: 0x00ffff, // Example color, adjust as needed
+    dashSize: 3, // Size of the visible part of the line
+    gapSize: 3, // Size of the gap
+    transparent: true,
+    opacity: 0.8
+  });
+};
+
 export const hoverMaterial = () => {
   return new THREE.LineBasicMaterial({
     color: '#ffccff'

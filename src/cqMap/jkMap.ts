@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import jkCore from './jkCore';
 
-import { quXian, type City } from '@/data';
+import { quXian, shiQu, type City } from '@/data';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import {
   defaultMaterial,
@@ -33,9 +33,9 @@ export default class jkMap extends jkCore {
     this.animation();
   }
 
-  initGeo() {
+  async initGeo() {
     this.createQuXian(quXian);
-    this.createShiQuLine(quXian);
+    this.createQuXianLine(quXian);
 
     this.manGroup.rotateX(toRad(270));
     // 居中 getCenter 获取集合体中点点
@@ -160,7 +160,7 @@ export default class jkMap extends jkCore {
    * 创建区县的边界线
    * @param quXian
    */
-  createShiQuLine(quXian: City) {
+  createQuXianLine(quXian: City) {
     quXian.features.forEach((item) => {
       const geometries = geoEach(item, this.drawLine);
 
@@ -225,4 +225,8 @@ export default class jkMap extends jkCore {
       hLight.start();
     });
   }
+}
+
+function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
 }
