@@ -44,6 +44,7 @@ export default class jkBorder {
     // 需要特别处理 居中， 不知道哪里位置出问题了
     const center = getCenter(this.map.manGroup);
     group.position.sub(center);
+    group.position.y = 0.1;
     this.group.add(group);
   }
 
